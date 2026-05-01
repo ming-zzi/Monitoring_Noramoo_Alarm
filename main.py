@@ -3,8 +3,8 @@ from bs4 import BeautifulSoup
 import os
 
 # 환경 변수에서 정보 가져오기 (보안)
-TG_TOKEN = os.environ.get("8626248654:AAE1iQdxYuMyOhvGb-DacC4mzLqiqdsJAVY")
-TG_CHAT_ID = os.environ.get("8311000374")
+TG_TOKEN = os.environ.get("TG_TOKEN")
+TG_CHAT_ID = os.environ.get("TG_CHAT_ID")
 TARGET_URL = "https://www.fmkorea.com/search.php?mid=stock&category=&search_keyword=%EB%85%B8%EB%9D%BC%EB%AC%B4&search_target=nick_name"
 
 def check_new_post():
@@ -25,8 +25,9 @@ def check_new_post():
         last_id = ""
         if os.path.exists("last_id.txt"):
             with open("last_id.txt", "r") as f:
-                last_id = f.read().strip()
-
+                #last_id = f.read().strip()
+                if True: #for test
+                    
         if post_id != last_id:
             # 텔레그램 알림 전송
             msg = f"🚨 노라무 새 글 발견!\n\n제목: {title}\n링크: {link}"
