@@ -8,12 +8,11 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    # 여기에 권한 설정을 명시적으로 추가합니다
     permissions:
-      contents: write 
+      contents: write
       
     steps:
-      - uses: actions/checkout@v4 # 최신 버전으로 업데이트
+      - uses: actions/checkout@v4
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -29,9 +28,11 @@ jobs:
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          # 파일이 있을 때만 업데이트하도록 수정
+          # 파일이 실제로 존재할 때만 git add를 실행하도록 수정
           if [ -f last_id.txt ]; then
             git add last_id.txt
             git commit -m "Update last post ID" || echo "No changes to commit"
             git push
+          else
+            echo "last_id.txt 파일이 생성되지 않아 업로드를 건너뜁니다."
           fi
