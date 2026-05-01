@@ -2,48 +2,38 @@ import requests
 from bs4 import BeautifulSoup
 import os
 
-# 환경 변수에서 정보 가져오기 (보안)
+# 환경 변수 설정 확인
 TG_TOKEN = os.environ.get("TG_TOKEN")
 TG_CHAT_ID = os.environ.get("TG_CHAT_ID")
 TARGET_URL = "https://www.fmkorea.com/search.php?mid=stock&category=&search_keyword=%EB%85%B8%EB%9D%BC%EB%AC%B4&search_target=nick_name"
 
 def check_new_post():
-    headers = {'User-Agent': 'Mozilla/5.0'}
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+    }
     try:
         res = requests.get(TARGET_URL, headers=headers)
         soup = BeautifulSoup(res.text, 'html.parser')
-        # 검색 결과의 첫 번째 글 선택
         first_post = soup.select_one('ul.search_result_list li dl dt a')
         
-        if not first_post: return
+        if not first_post:
+            print("게시글 없음")
+            return False
         
         title = first_post.text.strip()
         link = "https://www.fmkorea.com" + first_post['href']
-        post_id = first_post['href'].split('document_srl=')[-1].split('&')[0]
 
-        # 이전 글 ID 확인 (GitHub에 저장된 파일 읽기)
-        last_id = ""
-        if os.path.exists("last_id.txt"):
-            with open("last_id.txt", "r") as f:
-                #last_id = f.read().strip()
-                if True: #for test
-                    
-        if post_id != last_id:
-            # 텔레그램 알림 전송
-            msg = f"🚨 노라무 새 글 발견!\n\n제목: {title}\n링크: {link}"
-            send_url = f"https://api.telegram.org/bot{TG_TOKEN}/sendMessage?chat_id={TG_CHAT_ID}&text={msg}"
-            requests.get(send_url)
+        # [테스트 모드] ID 비교 없이 무조건 메시지 전송
+        msg = f"🔔 테스트 알림입니다!\n\n제목: {title}\n링크: {link}"
+        send_url = f"https://api.telegram.org/bot{TG_TOKEN}/sendMessage?chat_id={TG_CHAT_ID}&text={msg}"
+        
+        response = requests.get(send_url)
+        print(f"텔레그램 응답: {response.status_code}") # 200이 나오면 성공
+        return True
             
-            # 새로운 ID 저장
-            with open("last_id.txt", "w") as f:
-                f.write(post_id)
-            return True
     except Exception as e:
-        print(f"Error: {e}")
+        print(f"에러 발생: {e}")
     return False
 
 if __name__ == "__main__":
-    if check_new_post():
-        print("New post found and notified!")
-    else:
-        print("No new posts.")
+    check_new_post()
